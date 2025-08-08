@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Perdón, Susi 💖</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+  body, html {
+    margin: 0; padding: 0;
+    height: 100%;
+    background: linear-gradient(135deg, #fcefee, #ffe1f0);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow-x: hidden;
+    user-select: none;
+  }
+  h1 {
+    font-family: 'Pacifico', cursive;
+    color: #d6336c;
+    font-size: 3em;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 5px #f8c7d4;
+  }
+  .botones {
+    margin: 20px 0;
+    display: flex;
+    gap: 30px;
+  }
+  button {
+    background: #ff6b81;
+    border: none;
+    color: white;
+    padding: 15px 30px;
+    border-radius: 25px;
+    font-size: 1.2em;
+    cursor: pointer;
+    box-shadow: 0 5px 8px rgba(255,107,129,0.6);
+    transition: background 0.3s ease, transform 0.2s ease;
+  }
+  button:hover {
+    background: #ff476b;
+    transform: scale(1.05);
+  }
+  button:active {
+    transform: scale(0.95);
+  }
+  button.no {
+    background: #ff4c4c;
+  }
+  button.no:hover {
+    background: #e03131;
+  }
+  .barra-container {
+    width: 80%;
+    background: #ffd6e8;
+    border-radius: 30px;
+    height: 25px;
+    overflow: hidden;
+    box-shadow: inset 0 0 5px #ffa6c9;
+    margin-bottom: 30px;
+    transition: background 0.5s ease;
+  }
+  .barra {
+    height: 100%;
+    width: 0%;
+    background: #ff5c8d;
+    border-radius: 30px;
+    transition: width 0.4s ease, background 0.5s ease;
+  }
+  .frases-lindas {
+    width: 80%;
+    min-height: 50px;
+    position: relative;
+  }
+  .frase {
+    position: absolute;
+    white-space: nowrap;
+    font-size: 1.2em;
+    color: #d6336c;
+    animation: aparecer 1s ease forwards;
+    user-select: none;
+    pointer-events: none;
+    font-weight: bold;
+  }
+  .mensaje-no {
+    color: #e03131;
+    font-weight: 700;
+    font-size: 1.3em;
+    text-align: center;
+    margin-top: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    animation: shake 0.4s ease;
+  }
+  @keyframes aparecer {
+    from {opacity: 0; transform: translateY(10px);}
+    to {opacity: 1; transform: translateY(0);}
+  }
+  @keyframes shake {
+    0%, 100% {transform: translateX(0);}
+    20%, 60% {transform: translateX(-8px);}
+    40%, 80% {transform: translateX(8px);}
+  }
+</style>
+</head>
+<body>
+
+<h1>¿Me perdonas, Susi? 💖</h1>
+
+<div class="botones">
+  <button id="btnSi">Sí, mi amor 💕</button>
+  <button id="btnNo" class="no">No 😢</button>
+</div>
+
+<div class="barra-container" id="barraContainer">
+  <div id="barra" class="barra"></div>
+</div>
+
+<div class="frases-lindas" id="frasesLindas"></div>
+<div id="mensajeNo" class="mensaje-no" style="display:none;"></div>
+
+<audio id="sonidoSi" src="https://assets.codepen.io/605876/click-1.mp3" preload="auto"></audio>
+<audio id="sonidoNo" src="https://assets.codepen.io/605876/error.mp3" preload="auto"></audio>
+<audio id="musicaFondo" src="https://assets.codepen.io/605876/romantic-melody.mp3" loop preload="auto"></audio>
+
+<script>
+  const btnSi = document.getElementById('btnSi');
+  const btnNo = document.getElementById('btnNo');
+  const barra = document.getElementById('barra');
+  const barraContainer = document.getElementById('barraContainer');
+  const frasesLindas = document.getElementById('frasesLindas');
+  const mensajeNo = document.getElementById('mensajeNo');
+  const sonidoSi = document.getElementById('sonidoSi');
+  const sonidoNo = document.getElementById('sonidoNo');
+  const musicaFondo = document.getElementById('musicaFondo');
+
+  let progreso = 0; // 0 a 100
+  const maxProgreso = 100;
+  let contadorNo = 0;
+
+  // Frases lindas que aparecerán
+  const frases = [
+    "Te amo, mi bombón 🍬",
+    "Eres mi princesa 👑",
+    "Mi waifu por siempre 💖",
+    "Eres mi mujer y mi mundo 🌎",
+    "Susi, eres mi todo 💫",
+    "Contigo soy feliz 😊",
+    "Eres mi sol y luna ☀️🌙",
+    "Eres mi cielo estrellado ✨",
+    "Mi corazón late por ti ❤️",
+    "Te adoro más cada día 💕",
+    "Eres mi flor más hermosa 🌸",
+    "Nunca te dejaré, mi amor 💞",
+    "Eres mi sonrisa diaria 😄",
+    "Siempre juntos, mi princesa 💖"
+  ];
+
+  // Posiciones aleatorias para las frases
+  function posicionAleatoria() {
+    const container = frasesLindas.getBoundingClientRect();
+    const x = Math.random() * (container.width - 150);
+    const y = Math.random() * 40; // un poco arriba o abajo
+    return {x, y};
+  }
+
+  // Crear frase en pantalla al dar click en "Sí"
+  function crearFrase() {
+    if (progreso >= maxProgreso) return; // barra llena ya
+    const fraseTexto = frases[Math.floor(Math.random() * frases.length)];
+    const span = document.createElement('span');
+    span.className = 'frase';
+    span.textContent = fraseTexto;
+    const pos = posicionAleatoria();
+    span.style.left = pos.x + 'px';
+    span.style.top = pos.y + 'px';
+    frasesLindas.appendChild(span);
+    setTimeout(() => {
+      span.remove();
+    }, 4000); // desaparece después de 4 segundos
+  }
+
+  // Manejar barra llena para mostrar un mensaje bonito
+  function barraLlena() {
+    if(progreso >= maxProgreso){
+      mensajeNo.style.display = 'block';
+      mensajeNo.style.color = '#d6336c';
+      mensajeNo.textContent = "¡Gracias, mi Susi! 💖 Eres lo mejor en mi vida 🌹";
+      barra.style.background = '#d6336c';
+      barraContainer.style.background = '#fcefee';
+    }
+  }
+
+  // Evento botón Sí
+  btnSi.addEventListener('click', () => {
+    if(progreso < maxProgreso) {
+      progreso += 10;
+      if(progreso > maxProgreso) progreso = maxProgreso;
+      barra.style.width = progreso + '%';
+      barra.style.background = '#ff5c8d';
+      barraContainer.style.background = '#ffd6e8';
+      crearFrase();
+      mensajeNo.style.display = 'none';
+      sonidoSi.currentTime = 0;
+      sonidoSi.play();
+      barraLlena();
+    }
+  });
+
+  // Evento botón No
+  btnNo.addEventListener('click', () => {
+    contadorNo++;
+    barra.style.background = '#e03131';
+    barraContainer.style.background = '#f8d7da';
+    mensajeNo.style.color = '#e03131';
+    mensajeNo.textContent = "¡Perdónalo, Susi! 💔 Todo puede mejorar 💪";
+    mensajeNo.style.display = 'block';
+    sonidoNo.currentTime = 0;
+    sonidoNo.play();
+
+    // Reduce la barra un poco cada vez que se aprieta No
+    progreso -= 15;
+    if(progreso < 0) progreso = 0;
+    barra.style.width = progreso + '%';
+
+    // Si aprieta No 3 veces seguidas muestra otro mensaje
+    if(contadorNo >= 3){
+      mensajeNo.textContent = "Sé que tu corazón es grande, Susi. ¡Confía en el amor! 💖";
+      contadorNo = 0;
+    }
+  });
+
+  // Música de fondo suave que se puede activar dando clic en el título
+  const titulo = document.querySelector('h1');
+  titulo.style.cursor = 'pointer';
+  titulo.title = 'Haz clic para reproducir/pausar música de fondo';
+
+  titulo.addEventListener('click', () => {
+    if(musicaFondo.paused){
+      musicaFondo.play();
+      titulo.textContent = '¿Me perdonas, Susi? 💖 🎵';
+    } else {
+      musicaFondo.pause();
+      titulo.textContent = '¿Me perdonas, Susi? 💖';
+    }
+  });
+
+</script>
+
+</body>
+</html>
