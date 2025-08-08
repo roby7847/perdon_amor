@@ -24,6 +24,7 @@
     font-size: 3em;
     margin-bottom: 10px;
     text-shadow: 2px 2px 5px #f8c7d4;
+    cursor: pointer;
   }
   .botones {
     margin: 20px 0;
@@ -108,7 +109,7 @@
 </head>
 <body>
 
-<h1>¿Me perdonas, Susi? 💖</h1>
+<h1 title="Haz clic para reproducir/pausar música de fondo">¿Me perdonas, Susi? 💖</h1>
 
 <div class="botones">
   <button id="btnSi">Sí, mi amor 💕</button>
@@ -124,7 +125,9 @@
 
 <audio id="sonidoSi" src="https://assets.codepen.io/605876/click-1.mp3" preload="auto"></audio>
 <audio id="sonidoNo" src="https://assets.codepen.io/605876/error.mp3" preload="auto"></audio>
-<audio id="musicaFondo" src="https://assets.codepen.io/605876/romantic-melody.mp3" loop preload="auto"></audio>
+
+<!-- Aquí cambiamos la fuente del audio al archivo que subiste -->
+<audio id="musicaFondo" src="https://tu-usuario.github.io/tu-repositorio/perfec.mp3.mp4" loop preload="auto"></audio>
 
 <script>
   const btnSi = document.getElementById('btnSi');
@@ -136,6 +139,7 @@
   const sonidoSi = document.getElementById('sonidoSi');
   const sonidoNo = document.getElementById('sonidoNo');
   const musicaFondo = document.getElementById('musicaFondo');
+  const titulo = document.querySelector('h1');
 
   let progreso = 0; // 0 a 100
   const maxProgreso = 100;
@@ -234,21 +238,20 @@
   });
 
   // Música de fondo suave que se puede activar dando clic en el título
-  const titulo = document.querySelector('h1');
-  titulo.style.cursor = 'pointer';
-  titulo.title = 'Haz clic para reproducir/pausar música de fondo';
-
   titulo.addEventListener('click', () => {
     if(musicaFondo.paused){
-      musicaFondo.play();
+      musicaFondo.volume = 1;
+      musicaFondo.play().catch(err => {
+        console.error('Error al reproducir audio:', err);
+      });
       titulo.textContent = '¿Me perdonas, Susi? 💖 🎵';
     } else {
       musicaFondo.pause();
       titulo.textContent = '¿Me perdonas, Susi? 💖';
     }
   });
-
 </script>
 
 </body>
 </html>
+
